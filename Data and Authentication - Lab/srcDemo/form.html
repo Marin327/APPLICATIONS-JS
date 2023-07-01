@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Form</title>
+</head>
+<body>
+<form id="form" method="post" action="http://localhost:3030/jsonstore/demo">
+    <input type="text" name="title" id="title">
+    <div>
+        <textarea name="content" id="content" cols="30" rows="10"></textarea>
+    </div>
+    <div>
+        <input type="submit" value="Create Article">
+    </div>
+</form>
+<script>
+    document.getElementById('form').addEventListener('submit', onSubmit);
+
+    async function onSubmit(ev) {
+        ev.preventDefault();
+        const data = new FormData(ev.target);
+        const article = {
+            title: data.get('title'),
+            content: data.get('content')
+        }
+
+       const response = await fetch(ev.target.action, {
+            method: 'post',
+            headers:{'Content-Type': 'application/json'},
+            body: JSON.stringify(article)
+        })
+
+        console.log(await response.json());
+    }
+</script>
+</body>
+</html>

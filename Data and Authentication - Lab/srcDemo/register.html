@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <style>
+        form > * {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<form id="register">
+    <input type="text" name="email">
+    <input type="password" name="password">
+    <input type="password" name="repass">
+    <input type="submit" value="Register">
+</form>
+<hr/>
+<form id="login">
+    <div>
+        <label for="email">Email</label>
+        <input type="text" name="email" id="email">
+    </div>
+    <div>
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password">
+    </div>
+
+    <div>
+        <input type="submit" value="Login">
+    </div>
+</form>
+
+<button>Get Recipes</button>
+<script>
+    document.querySelector('#register').addEventListener('submit', onRegister);
+    document.querySelector('#login').addEventListener('submit', onLogin);
+    document.querySelector('button').addEventListener('click', onClick);
+
+    async function onRegister(ev) {
+        ev.preventDefault();
+        const formData = new FormData(ev.target);
+
+        try {
+            if (formData.get('password').localeCompare(formData.get('repass')) !== 0) {
+                throw new Error('Passwords are not the same!');
+            }
+
+            const data = {
+                email: formData.get('email'),
+                password: formData.get('password')
+            }
+
+            const response = await fetch('http://localhost:3030/users/register', {
+                method: 'post',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message);
+            }
+
+            const responseData = await response.json();
+
+            console.log(responseData);
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+
+    async function onLogin(ev) {
+        ev.preventDefault();
+        const formData = new FormData(ev.target);
+
+        try {
+            const data = {
+                email: formData.get('email'),
+                password: formData.get('password')
+            }
+
+            const response = await fetch('http://localhost:3030/users/login', {
+                method: 'post',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message);
+            }
+
+            const responseData = await response.json();
+            localStorage.setItem('accessToken', responseData.accessToken)
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+
+    async function onClick(ev) {
+        ev.preventDefault();
+        let accessToken = localStorage.getItem('accessToken');
+
+        const response = await fetch('http://localhost:3030/data/recipes', {headers: {'X-Authorization': accessToken}})
+        try {
+            if (!response.ok) {
+                const error = await response.json()
+                throw new Error(error.message);
+            }
+
+            const data = await response.json()
+
+            console.log(data);
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+</script>
+</body>
+</html>
