@@ -1,1 +1,1 @@
-# aplicationJS
+# applicationsJS
